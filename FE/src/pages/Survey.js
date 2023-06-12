@@ -247,14 +247,14 @@ export const Survey = () => {
           options={getOptions(key.id).filter((item) => item.type === 'recommendations')}
           required
         />
-        <div className='mb-4'>
+        {/* <div className='mb-4'>
           <label>Other's please specify</label>
           <textarea
             className='form-control'
             value={getValue(key.id).remarks}
             onChange={(e) => handleOnChange(key.id, 'remarks', e.target.value)}
           />
-        </div>
+        </div> */}
       </>
     );
   };
@@ -355,8 +355,8 @@ export const Survey = () => {
                       <h6>Question {index + 1}</h6>
                       {fields(key)}
                       {/* {key.category !== 'N/A' && getSubjectsOrInstructorField(key.id, key.category)} */}
-                      {key.category !== 'N/A' && key.name !== 'Others' && getRecommendation(key)}
-                      {key.category !== 'N/A' && key.name !== 'Others' && getRemarks(key.id)}
+                      {key.category !== 'N/A' && key.name !== 'Others' && getOptions(key.id).filter((item) => item.type === 'recommendations').length > 0 && getRecommendation(key)}
+                      {/* {key.category !== 'N/A' && key.name !== 'Others' && getRemarks(key.id)} */}
                     </div>
                   ))}
                 </div>
