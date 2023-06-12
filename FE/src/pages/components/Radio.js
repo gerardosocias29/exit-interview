@@ -1,4 +1,5 @@
 import React from 'react';
+import { generateRandomId } from '../../utils/random';
 
 export const Radio = ({
   label = 'text',
@@ -12,6 +13,7 @@ export const Radio = ({
   handleOnChange,
   required = false,
 }) => {
+  const randomId = generateRandomId();
   return (
     <div className='mb-4'>
       <h6>
@@ -20,6 +22,7 @@ export const Radio = ({
       {options.map((key, index) => (
         <div className={`form-check ${options.length <= 5 ? 'form-check-inline' : ''}`} key={index}>
           <input
+            id={randomId+'-'+index}
             className='form-check-input'
             type='radio'
             name={label}
@@ -28,7 +31,7 @@ export const Radio = ({
             onChange={(e) => handleOnChange(value.questionid, 'answerOptionId', e.target.value)}
             required={required}
           />
-          <label className='form-check-label'>{key.name}</label>
+          <label htmlFor={randomId+'-'+index} className='form-check-label'>{key.name}</label>
         </div>
       ))}
     </div>

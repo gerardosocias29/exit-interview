@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { generateRandomId } from '../../utils/random';
 
 export const Checkbox = ({
   label = 'text',
@@ -13,6 +14,7 @@ export const Checkbox = ({
   required = false,
 }) => {
   const [origArr, setOrigArr] = useState([]);
+  const randomId = generateRandomId();
   const getIds = (id) => {
     const arr = [...origArr];
     const index = arr.findIndex((arr) => arr === id);
@@ -34,6 +36,7 @@ export const Checkbox = ({
       {options.map((key, index) => (
         <div className='form-check form-check-inline' key={index}>
           <input
+            id={randomId+'-'+index}
             className='form-check-input'
             type='checkbox'
             name={key.id}
@@ -41,7 +44,7 @@ export const Checkbox = ({
             required={required ? (origArr.length === 0 ? true : false) : false}
             onChange={(e) => getIds(e.target.value)}
           />
-          <label className='form-check-label'>{key.name}</label>
+          <label htmlFor={randomId+'-'+index} className='form-check-label'>{key.name}</label>
         </div>
       ))}
     </div>

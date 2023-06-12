@@ -354,7 +354,7 @@ export const Survey = () => {
                     <div key={index} className={`p-3 rounded`}>
                       <h6>Question {index + 1}</h6>
                       {fields(key)}
-                      {key.category !== 'N/A' && getSubjectsOrInstructorField(key.id, key.category)}
+                      {/* {key.category !== 'N/A' && getSubjectsOrInstructorField(key.id, key.category)} */}
                       {key.category !== 'N/A' && key.name !== 'Others' && getRecommendation(key)}
                       {key.category !== 'N/A' && key.name !== 'Others' && getRemarks(key.id)}
                     </div>
