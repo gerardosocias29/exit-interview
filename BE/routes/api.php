@@ -7,6 +7,7 @@ use App\Http\Controllers\OptionsController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\UserFormController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -50,3 +51,5 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
   Route::post('logout/', [UserController::class, 'logout']);
   Route::post('update/', [UserController::class, 'updateAdmin']);
 });
+
+Route::get('dashboard_details/', [DashboardController::class, 'index']);
