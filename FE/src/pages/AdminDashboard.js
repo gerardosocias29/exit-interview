@@ -25,11 +25,22 @@ export const AdminDashboard = () => {
   const [reco, setReco] = useState([]);
   const { course } = useParams();
 
+  const [dasboardAnalytics, setDashboardAnalytics] = useState([]);
+
   const fetchData = async () => {
     await apiRequest
       .get(`/answer?course=${course}`)
       .then((res) => {
         setDashboard(res.data || []);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    await apiRequest
+      .get(`/dashboard_details`)
+      .then((res) => {
+        setDashboardAnalytics(res.data || []);
       })
       .catch((error) => {
         console.log(error);
@@ -92,6 +103,7 @@ export const AdminDashboard = () => {
   const getOptions = (name, isStacked = false, isHorizontal = false) => {
     return {
       responsive: true,
+
       plugins: {
         legend: true,
         title: {
@@ -129,7 +141,19 @@ export const AdminDashboard = () => {
       }),
       ...(isHorizontal && {
         indexAxis: 'y',
+        scales: {
+          x: {
+            ticks: {
+              callback: function (value) {
+                return value + "%";
+              },
+            },
+          },
+        },
+  
       }),
+      
+  
     };
   };
 
@@ -369,28 +393,30 @@ export const AdminDashboard = () => {
             </Col>
           </Row>
         )}
+        
+        {
+          Object.keys(dasboardAnalytics).map((data, index) => (
+            console.log(dasboardAnalytics[data]),
+            <Row className='mb-3 py-2 border-bottom'>
+              {/* <Col>
+                <Bar
+                  options={getOptions(JSON.stringify(dasboardAnalytics[data]), true, true)}
+                  data={getDatasets('student_services')}
+                />
+              </Col> */}
+              <Col>
+                <Bar
+                  options={getOptions(data.replace('_', ' ').toUpperCase(), false, true)}
+                  data={dasboardAnalytics[data]}
+                />
+              </Col>
+            </Row>
+          ))
+        }
 
-        <Row className='mb-3 py-2 border-bottom'>
-          <Col>
-            <Bar
-              options={getOptions('STUDENT SERVICES', true, true)}
-              data={getDatasets('student_services')}
-            />
-          </Col>
-          <Col>
-            <Bar
-              options={getOptions('TOP RECOMMENDATIONS', false, true)}
-              data={
-                reco
-                  .filter((item) => item.title === 'student services')
-                  .map((item) => ({ labels: item.labels, datasets: item.datasets }))[0] ||
-                recommendations.student_services
-              }
-            />
-          </Col>
-        </Row>
+        
 
-        <Row className='mb-3 py-2 border-bottom'>
+        {/* <Row className='mb-3 py-2 border-bottom'>
           <Col>
             <Bar
               options={getOptions('SCHOOL PLANT', true, true)}
@@ -467,7 +493,9 @@ export const AdminDashboard = () => {
               }
             />
           </Col>
-        </Row>
+        </Row> */}
+
+
       </Container>
     </Page>
   );
