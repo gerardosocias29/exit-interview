@@ -267,7 +267,7 @@ export const Survey = () => {
   return (
     <>
       <div className='min-vh-100 d-flex justify-content-center p-5 bg-main-student'>
-        <div className='card border-0 w-75'>
+        <div className='card border-0 col-12 col-xl-8 col-lg-9'>
           <div className='card-body'>
             <form onSubmit={onSubmit}>
               <h4>Personal Information</h4>
