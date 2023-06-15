@@ -150,10 +150,7 @@ export const AdminDashboard = () => {
             },
           },
         },
-  
       }),
-      
-  
     };
   };
 
@@ -330,7 +327,7 @@ export const AdminDashboard = () => {
 
   return (
     <Page>
-      <Container className='mb-3'>
+      <div className='mb-3'>
         <Stack
           direction='horizontal'
           gap={3}
@@ -355,8 +352,8 @@ export const AdminDashboard = () => {
             </a>
           </div>
         </Stack>
-      </Container>
-      <Container>
+      </div>
+      <div>
         {course !== 'all' ? (
           <>
             <Row className='mb-3 py-2 border-bottom'>
@@ -496,7 +493,7 @@ export const AdminDashboard = () => {
         </Row> */}
 
 
-      </Container>
+      </div>
     </Page>
   );
 };

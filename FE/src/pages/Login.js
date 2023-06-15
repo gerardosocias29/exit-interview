@@ -26,42 +26,49 @@ export const Login = () => {
   };
 
   return (
-    <div className='min-vh-100 d-flex justify-content-center py-5 bg-main-student'>
-      <div className='card w-25 border-0'>
-        <div className='card-header p-0'>
-          <img src='/login.jpeg' className='card-img-top' alt='' />
-        </div>
-        <div className='card-body'>
-          <form onSubmit={onSubmit}>
-            <h5 className='card-title text-center my-2'>Login</h5>
-            <div className='mb-3'>
-              <h6>Email</h6>
-              <input
-                type='email'
-                className='form-control'
-                onChange={(e) => setUser({ ...user, email: e.target.value })}
-              />
+    <div class="container-fluid">
+      <div class="row justify-content-center align-items-center min-vh-100 bg-main-student">
+        <div class="col-xs-12 col-sm-8 col-md-6 col-lg-4 col-xl-3">
+          <div class="card border-0">
+            <div class="card-header p-0">
+              <img src="/login.jpeg" class="card-img-top" alt="" />
             </div>
-            <div className='mb-3'>
-              <h6>Password</h6>
-              <input
-                type='password'
-                className='form-control'
-                onChange={(e) => setUser({ ...user, password: e.target.value })}
-              />
+            <div class="card-body">
+              <form onSubmit={onSubmit}>
+                <h5 class="card-title text-center my-2">Login</h5>
+                <div class="mb-3">
+                  <label for="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-control"
+                    onChange={(e) => setUser({ ...user, email: e.target.value })}
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="password">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    class="form-control"
+                    onChange={(e) => setUser({ ...user, password: e.target.value })}
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                  Login
+                </button>
+              </form>
+              <hr />
+              <div class="text-center">
+                <a href="/register">No account yet? Register here</a>
+                <br />
+                <a href="/privacy-policy">Privacy Policy</a>
+              </div>
             </div>
-            <button type='submit' className='btn btn-primary'>
-              Login
-            </button>
-          </form>
-          <hr />
-          <div className='text-center'>
-            <a href='/register'>No account yet? Register here</a>
-            <br />
-            <a href='/privacy-policy'>Privacy Policy</a>
           </div>
         </div>
       </div>
     </div>
+
   );
 };
