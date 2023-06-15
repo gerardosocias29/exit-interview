@@ -11,7 +11,7 @@ class Answers extends Model
     protected $fillable = ['description', 'option_id', 'question_id', 'user_form_id', 'remarks', 'subjects_handled', 'reason', 'instructor'];
 
     public function options(){
-      return $this->hasMany(Options::class, 'option_id');
+      return $this->hasMany(Options::class, 'id', 'option_id');
     }
 
     public function forms(){

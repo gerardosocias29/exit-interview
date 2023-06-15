@@ -4,9 +4,59 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
+use App\Models\Forms;
 
 class DashboardController extends Controller
 {
+
+    public function stats(Request $request) {
+        $forms = Forms::with('responses')->with(['questions.answers.options'])->orWhere('form_course', 'like', '%ALL%')->get();
+
+        $stats = array();
+        foreach($forms as $key => $form){
+            $key_name = str_replace(' ', '_', $form->name);
+            $questions = [
+                "questions" => [],
+                "no_of_respondents" => count($form->responses)
+            ];
+            foreach($form->questions as $ke => $q){
+                $answers = [
+                    "answer" => [],
+                    "recommendations" => [],
+                ];
+                // if type radio, check for options
+                foreach($q->answers as $answer){
+                    if($q->type == "radio"){
+                        foreach($answer->options as $option){
+                            if($option->type == "options"){
+                                array_push($answers['answer'], $option->name);
+                            }
+                            else if($option->type == "recommendations") {
+                                array_push($answers['recommendations'], $option->name);
+                            }
+                        }
+                    } else if($q->type == "text" || $q->type == "textarea"){
+                        array_push($answers['answer'], $answer->description);
+                    }
+                    if($answer->remarks != null){
+                        array_push($answers['recommendations'], $answer->remarks);
+                    }
+                }
+                $answersLowercaseValues = array_map('strtolower', $answers['answer']);
+                $answers['answer'] = array_count_values($answersLowercaseValues);
+
+                $recommendationsLowercaseValues = array_map('strtolower', $answers['recommendations']);
+                $answers['recommendations'] = array_count_values($recommendationsLowercaseValues);
+                array_push($questions['questions'], [
+                    'question' => $q->name,
+                    'answers' => $answers
+                ]);
+            }
+            array_push($stats, [$key_name => $questions]);
+        }
+        return response()->json(["forms" => $forms, "stats" => $stats]);
+    }
+
     public function index(Request $request){
         // $sql = "SELECT f.name AS form_name, r.recommendation_option, r.recommendation_percentage, r.user_count
         //     FROM forms f

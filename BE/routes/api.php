@@ -53,3 +53,4 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 });
 
 Route::get('dashboard_details/', [DashboardController::class, 'index']);
+Route::get('stats/', [DashboardController::class, 'stats']);
