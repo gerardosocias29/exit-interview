@@ -3,7 +3,12 @@ main {
   height: -webkit-fill-available;
   max-height: 100vh;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
+  margin: 50px 0;
+}
+
+html {
+  overflow-y: auto;
 }
 
 .b-example-vr {
@@ -76,8 +81,8 @@ h6 {
 # Main
 --------------------------------------------------------------*/
 #main {
-  margin-top: 60px;
-  padding: 20px 30px;
+  margin-top: 0;
+  padding: 80px 30px;
   transition: all 0.3s;
 }
 

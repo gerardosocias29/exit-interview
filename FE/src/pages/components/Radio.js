@@ -20,7 +20,7 @@ export const Radio = ({
         {label} {required ? <span className='text-danger'>(* required)</span> : null}
       </h6>
       {options.map((key, index) => (
-        <div className={`form-check ${options.length <= 5 ? 'form-check-inline' : ''}`} key={index}>
+        <div className={`form-check ${options.length <= 10 ? 'form-check-inline' : ''}`} key={index}>
           <input
             id={randomId+'-'+index}
             className='form-check-input'

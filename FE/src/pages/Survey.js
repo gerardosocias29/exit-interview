@@ -247,14 +247,14 @@ export const Survey = () => {
           options={getOptions(key.id).filter((item) => item.type === 'recommendations')}
           required
         />
-        {/* <div className='mb-4'>
+        <div className='mb-4'>
           <label>Other's please specify</label>
           <textarea
             className='form-control'
             value={getValue(key.id).remarks}
             onChange={(e) => handleOnChange(key.id, 'remarks', e.target.value)}
           />
-        </div> */}
+        </div>
       </>
     );
   };
@@ -283,6 +283,7 @@ export const Survey = () => {
               <div className='mb-3'>
                 <h6>Course</h6>
                 <select
+                  disabled={course == "all" ? false : true}
                   className='form-control'
                   name='instructors'
                   onChange={(e) =>
@@ -296,7 +297,7 @@ export const Survey = () => {
                 >
                   <option value={null}>Select a Course</option>
                   {courses.map((item, index) => (
-                    <option key={index} value={item.value}>
+                    <option key={index} value={item.value} selected={course.toUpperCase() == item.label ? true : false}>
                       {item.label}
                     </option>
                   ))}
@@ -348,8 +349,8 @@ export const Survey = () => {
                 />
               </div>
               {forms.map((f, ind) => (
-                <div className='mb-3'>
-                  <h4>{f.name}</h4>
+                <div className='mb-3' key={ind}>
+                  <h4 className='text-capitalize'>{f.name}</h4>
                   {f.questions.map((key, index) => (
                     <div key={index} className={`p-3 rounded`}>
                       <h6>Question {index + 1}</h6>

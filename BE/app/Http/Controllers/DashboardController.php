@@ -54,7 +54,7 @@ class DashboardController extends Controller
             }
             array_push($stats, [$key_name => $questions]);
         }
-        return response()->json(["forms" => $forms, "stats" => $stats]);
+        return response()->json(["stats" => $stats]);
     }
 
     public function index(Request $request){
