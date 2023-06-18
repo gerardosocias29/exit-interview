@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Table } from 'react-bootstrap';
+import { Tab, Table } from 'react-bootstrap';
 import { apiRequest } from '../utils/apiRequest';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -8,6 +8,9 @@ import { recommendations } from '../utils/dummy';
 export const Download = () => {
   const [dashboard, setDashboard] = useState([]);
   const exportRef = useRef();
+
+  const [instructorsData, setInstructorsData] = useState([]);
+
 
   const [instructorLearnTheMost, setInstructorLearnTheMost] = useState([]);
   const [instructorLearnTheLeast, setInstructorLearnTheLeast] = useState([]);
@@ -57,6 +60,8 @@ export const Download = () => {
       .get(`/stats`)
       .then((res) => {
         setDashboard(res.data || []);
+        setInstructorsData(res.data.faculty_and_instructions_all);
+
         setInstructorLearnTheMost(searchQuestions(res.data, ['instructor', 'learn', 'the', 'most'])[0] || {});
         setInstructorLearnTheLeast(searchQuestions(res.data, ['instructor', 'learn', 'the', 'least'])[0] || {});
         setSubjectLearnTheMost(searchQuestions(res.data, ['subjects', 'learn', 'the', 'most'])[0] || {});
@@ -153,6 +158,36 @@ export const Download = () => {
         <Table bordered>
           <thead>
             <tr className='border border-dark'>
+              <th className='col-xl-4' rowSpan={2}>Name of Faculty or Instructor</th>
+              <th colSpan={2}>No of Students Responded</th>
+              <th className='col-xl-4' rowSpan={2}>Recommendation</th>
+            </tr>
+            <tr className='border border-dark'>
+              <th className='col-xl-2'>Learns The Most</th>
+              <th className='col-xl-2'>Learn the Least</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              Object.keys(instructorsData).map((instructor, index) => {
+                return(
+                  <>
+                    <tr key={index}>
+                      <td>{instructor.toString()}</td>
+                      <td>{instructorsData[instructor].learnMostCount}</td>
+                      <td>{instructorsData[instructor].learnLeastCount}</td>
+                      <td>{instructorsData[instructor].topRecommendation}</td>
+                    </tr>
+                  </>
+                );
+              })
+            }
+            
+          </tbody>
+        </Table>
+        {/* <Table bordered className='hidden'>
+          <thead>
+            <tr className='border border-dark'>
               <th className='col-xl-2'>Learn the Most</th>
               <th className='col-xl-4'>Learns The Most Top Recommendation</th>
               <th className='col-xl-2'>Learn the Least</th>
@@ -217,7 +252,7 @@ export const Download = () => {
               </td>
             </tr>
           </tbody>
-        </Table>
+        </Table> */}
         <br />
         <h5 className='text-start'>SUBJECTS</h5>
         <Table bordered>

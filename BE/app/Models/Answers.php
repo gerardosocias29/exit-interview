@@ -17,4 +17,19 @@ class Answers extends Model
     public function forms(){
       return $this->belongsTo(UserForms::class, 'user_form_id');
     }
+
+    public function question()
+    {
+      return $this->belongsTo(Questions::class, 'question_id');
+    }
+
+    public function option()
+    {
+      return $this->belongsTo(Options::class, 'option_id');
+    }
+
+    public function userForm()
+    {
+      return $this->belongsTo(UserForms::class, 'user_form_id');
+    }
 }

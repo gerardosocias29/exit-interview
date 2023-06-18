@@ -21,4 +21,9 @@ class UserForms extends Model
     public function answers() {
       return $this->hasMany(Answers::class, 'user_form_id');
     }
+
+    public function form()
+    {
+      return $this->belongsTo(Forms::class, 'form_id');
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use App\Models\Forms;
+use App\Models\UserForms;
 
 class DashboardController extends Controller
 {
@@ -54,7 +55,124 @@ class DashboardController extends Controller
             }
             array_push($stats, [$key_name => $questions]);
         }
-        return response()->json(["stats" => $stats]);
+
+        $forms2 = Forms::with('questions.answers.option', 'responses', 'responses.users')->get();
+        $new_stats = [];
+
+        foreach ($forms2 as $form) {
+            $formName = str_replace(' ', '_', $form->name) . '_' . strtolower($form->form_course);
+            $questions = $form->questions;
+
+            $questionsData = [
+                "questions" => [],
+                "no_of_respondents" => count($form->responses)
+            ];
+
+            foreach ($questions as $question) {
+                $questionName = $question->name;
+                $answersData = [];
+
+                foreach ($question->answers as $answer) {
+                    $userForm = $answer->userForm;
+                    if ($userForm) {
+                        $user = $userForm->users;
+                        $userID = $user->id;
+
+                        if (!isset($answersData[$userID])) {
+                            $answersData[$userID] = [
+                                'answer' => [],
+                                'recommendations' => []
+                            ];
+                        }
+                        if($question->type == "radio"){
+                            foreach($answer->options as $option){
+                                if($option->type == "options"){
+                                    array_push($answersData[$userID]['answer'], $option->name);
+                                }
+                                else if($option->type == "recommendations") {
+                                    array_push($answersData[$userID]['recommendations'], $option->name);
+                                }
+                            }
+                        }
+                        else if($question->type == "text" || $question->type == "textarea"){
+                            array_push($answersData[$userID]['answer'], $answer->description);
+                        }
+                        if($answer->remarks != null){
+                            array_push($answersData[$userID]['recommendations'], $answer->remarks);
+                        }
+                    }
+                }
+
+                $questionsData['questions'][] = [
+                    'question' => $questionName,
+                    'answers' => $answersData
+                ];
+            }
+            
+            $new_stats[$formName] = $questionsData;
+        }
+        $filteredStats = $new_stats['faculty_and_instructions_all']; // Assuming the form name is 'faculty and instructions'
+        $instructors = [];
+        foreach ($filteredStats['questions'] as $question) {
+            $questionText = strtolower($question['question']);
+        
+            $keywordsLearnMost = ['instructor', 'learn', 'the', 'most'];
+            $keywordsLearnLeast = ['instructor', 'learn', 'the', 'least'];
+        
+            // Check if the question contains all the keywords for "learn the most"
+            $foundKeywordsLearnMost = true;
+            foreach ($keywordsLearnMost as $keyword) {
+                if (strpos($questionText, $keyword) === false) {
+                    $foundKeywordsLearnMost = false;
+                    break;
+                }
+            }
+        
+            // Check if the question contains all the keywords for "learn the least"
+            $foundKeywordsLearnLeast = true;
+            foreach ($keywordsLearnLeast as $keyword) {
+                if (strpos($questionText, $keyword) === false) {
+                    $foundKeywordsLearnLeast = false;
+                    break;
+                }
+            }
+        
+            if ($foundKeywordsLearnMost || $foundKeywordsLearnLeast) {
+                foreach ($question['answers'] as $userID => $answerData) {
+                    foreach ($answerData['answer'] as $answer) {
+                        // Check if the answer contains the instructor name
+                        if (strpos(strtolower($answer), 'instructor') !== false) {
+                            $instructorName = $answer;
+        
+                            if (!isset($instructors[$instructorName])) {
+                                $instructors[$instructorName] = [
+                                    'learnMostCount' => 0,
+                                    'learnLeastCount' => 0,
+                                    'topRecommendation' => '',
+                                ];
+                            }
+        
+                            // Increase the count for "learn the most" if the question contains its keywords
+                            if ($foundKeywordsLearnMost) {
+                                $instructors[$instructorName]['learnMostCount'] += count($answerData['recommendations']);
+                            }
+        
+                            // Increase the count for "learn the least" if the question contains its keywords
+                            if ($foundKeywordsLearnLeast) {
+                                $instructors[$instructorName]['learnLeastCount'] += count($answerData['recommendations']);
+                            }
+        
+                            // Store the top recommendation for the instructor
+                            $topRecommendations = $answerData['recommendations'];
+                            if (!empty($topRecommendations)) {
+                                $instructors[$instructorName]['topRecommendation'] = $topRecommendations[0];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return response()->json(['stats' => $stats, "faculty_and_instructions_all" => $instructors]);
     }
 
     public function index(Request $request){
