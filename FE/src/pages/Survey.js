@@ -283,7 +283,7 @@ export const Survey = () => {
               <div className='mb-3'>
                 <h6>Course</h6>
                 <select
-                  disabled={course == "all" ? false : true}
+                  
                   className='form-control'
                   name='instructors'
                   onChange={(e) =>
