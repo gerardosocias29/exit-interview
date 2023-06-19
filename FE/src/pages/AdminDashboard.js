@@ -18,6 +18,8 @@ import { recommendations } from '../utils/dummy';
 import { sortFormatData, chartFormatData } from '../utils/sorter';
 import { useParams } from 'react-router-dom';
 
+import ApexCharts from 'react-apexcharts';
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ArcElement, Tooltip, Legend);
 
 export const AdminDashboard = () => {
@@ -25,7 +27,8 @@ export const AdminDashboard = () => {
   const [reco, setReco] = useState([]);
   const { course } = useParams();
 
-  const [dasboardAnalytics, setDashboardAnalytics] = useState([]);
+  const [dashboardAnalytics, setDashboardAnalytics] = useState([]);
+  const [statistics, setStatistics] = useState([]);
 
   const fetchData = async () => {
     await apiRequest
@@ -37,14 +40,14 @@ export const AdminDashboard = () => {
         console.log(error);
       });
 
-    await apiRequest
-      .get(`/dashboard_details`)
-      .then((res) => {
-        setDashboardAnalytics(res.data || []);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    // await apiRequest
+    //   .get(`/dashboard_details`)
+    //   .then((res) => {
+    //     setDashboardAnalytics(res.data || []);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
 
     await apiRequest
       .get(`/recommendations?course=${course}`)
@@ -94,6 +97,16 @@ export const AdminDashboard = () => {
       .catch((error) => {
         console.log(error);
       });
+
+    await apiRequest
+    .get(`/stats`)
+    .then((res) => {
+      setStatistics(res.data.faculty_and_instructions_all);
+      setDashboardAnalytics(res.data.stats);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
   };
 
   useEffect(() => {
@@ -203,6 +216,199 @@ export const AdminDashboard = () => {
         borderWidth: 2,
       },
     ],
+  };
+
+  const ResponsByCourse = () => {
+    var colors = dashboard?.course?.map((item) => {
+      if (item.name.toLowerCase() === 'bsit') return 'pink';
+      else if (item.name.toLowerCase() === 'bscrim') return 'grey';
+      else if (item.name.toLowerCase() === 'bshm') return 'green';
+      else if (item.name.toLowerCase() === 'bseduc') return 'blue';
+      else if (item.name.toLowerCase() === 'bsed') return 'blue';
+      else if (item.name.toLowerCase() === 'beed') return 'blue';
+      else return 'black';
+    });
+
+    if(colors != null) {
+
+    }
+    const options = {
+      series: dashboard?.course?.map((item) => item.students.length) || [],
+      chart: {
+        width: 380,
+        type: 'pie',
+      },
+      labels: dashboard?.course?.map((item) => item.name) || [],
+      colors: dashboard?.course?.map((item) => {
+        if (item.name.toLowerCase() === 'bsit') return '#FFC0CB';
+        else if (item.name.toLowerCase() === 'bscrim') return '#808080';
+        else if (item.name.toLowerCase() === 'bshm') return '#008000';
+        else if (item.name.toLowerCase() === 'bseduc') return '#0000FF';
+        else if (item.name.toLowerCase() === 'bsed') return '#0000FF';
+        else if (item.name.toLowerCase() === 'beed') return '#0000FF';
+        else return '#000000';
+      }),
+      responsive: [{
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200
+          },
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }]
+    };
+  
+    return (
+      <div id="chart">
+        <ApexCharts options={options} series={options.series} type={options.chart.type} width={options.chart.width} />
+      </div>
+    );
+  }
+
+  const FacultyAndInstructions = () => {
+    var instructors = Object.keys(statistics).map((statistic) => statistic);
+    console.log("instructors", instructors);
+
+    var learnTheMost = Object.keys(statistics).map((stat) => statistics[stat].learnMostCount);
+    console.log("learnTheMost", learnTheMost);
+
+    var learnTheLeast = Object.keys(statistics).map((stat) => statistics[stat].learnLeastCount);
+    console.log("learnTheLeast", learnTheLeast);
+
+    // Calculate total respondents
+    var totalRespondents = learnTheMost.reduce((sum, count) => sum + count, 0);
+
+    const options = {
+      series: [
+        {
+          name: 'Learn the Most',
+          data: learnTheMost
+        },
+        {
+          name: 'Learn the Least',
+          data: learnTheLeast
+        }
+      ],
+      chart: {
+        type: 'bar',
+        height: 350,
+        stacked: true
+      },
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          borderRadius: 4
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val, { seriesIndex, dataPointIndex }) {
+          var percentage = ((val / totalRespondents) * 100).toFixed(2);
+          return percentage + '%';
+        }
+      },
+      xaxis: {
+        categories: instructors
+      },
+      legend: {
+        position: 'top'
+      },
+      tooltip: {
+        y: {
+          formatter: function (val, { seriesIndex, dataPointIndex }) {
+            return val + " (" + ((val / totalRespondents) * 100).toFixed(2) + "%)";
+          }
+        }
+      }
+    };
+
+    return (
+      <div>
+        <ApexCharts options={options} series={options.series} type={options.chart.type} height={options.chart.height} />
+        {instructors.map((instructor, index) => (
+          <div key={index} className="card my-2">
+            <div className="card-body">
+              <h5 className="card-title p-0">{instructor}</h5>
+              <p className="card-text">{statistics[instructor].topRecommendation}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const FormResponses = () => {
+    var noOfRespondents = Object.keys(dashboardAnalytics).map((key, index) => {
+      const noOfRespondents = Object.values(dashboardAnalytics[key])[0].no_of_respondents;
+      return noOfRespondents;
+    });
+    
+    var formNames = dashboardAnalytics.map(item => {
+      var key = Object.keys(item)[0];
+      var formattedName = key.replace(/_/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+      return formattedName;
+    });
+
+    console.log(noOfRespondents);
+    const options = {
+      series: [
+        {
+          name: 'No. of Respondents',
+          data: noOfRespondents
+        }
+      ],
+      chart: {
+        type: 'bar',
+        height: 350
+      },
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          borderRadius: 4
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+          return val.toString();
+        }
+      },
+      xaxis: {
+        categories: formNames
+      },
+      legend: {
+        position: 'top',
+        show: true,
+        markers: {
+          fillColors: ['#008FFB']
+        },
+        labels: {
+          colors: ['#000000'],
+          useSeriesColors: false,
+          formatter: function (val) {
+            return val;
+          }
+        }
+      },
+      tooltip: {
+        y: {
+          formatter: function (val) {
+            return val.toString();
+          }
+        }
+      }
+    };
+    
+    
+    
+  
+    return <ApexCharts options={options} series={options.series} type={options.chart.type} height={options.chart.height} />;
   };
 
   const optionsPie = {
@@ -384,32 +590,55 @@ export const AdminDashboard = () => {
             </Row>
           </>
         ) : (
-          <Row className='mb-3 py-2 border-bottom'>
-            <Col>
-              <Pie data={pieData} options={optionsPie} width={'100%'} />
-            </Col>
-          </Row>
+
+          <div className="col-12">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">Response By Course</h5>
+                {ResponsByCourse()}
+              </div>
+            </div>
+          </div>
+          // <Row classNameName='mb-3 py-2 border-bottom'>
+          //   <Col>
+          //     <Pie data={pieData} options={optionsPie} width={'100%'} />
+          //   </Col>
+          // </Row>
         )}
         
-        {
-          Object.keys(dasboardAnalytics).map((data, index) => (
-            console.log(dasboardAnalytics[data]),
+
+        <div className="col-12">
+          <div className="card">
+            <div className="card-body">
+              <h5 className="card-title">Faculty And Instructions</h5>
+              {FacultyAndInstructions()}
+            </div>
+          </div>
+        </div>
+
+        <div className="col-12">
+          <div className="card">
+            <div className="card-body">
+              <h5 className="card-title">Form Responses</h5>
+              {FormResponses()}
+            </div>
+          </div>
+        </div>
+
+        {/* {
+          Object.keys(dashboardAnalytics).map((data, index) => (
+            console.log(dashboardAnalytics[data]),
             <Row className='mb-3 py-2 border-bottom'>
-              {/* <Col>
-                <Bar
-                  options={getOptions(JSON.stringify(dasboardAnalytics[data]), true, true)}
-                  data={getDatasets('student_services')}
-                />
-              </Col> */}
+              
               <Col>
                 <Bar
                   options={getOptions(data.replace('_', ' ').toUpperCase(), false, true)}
-                  data={dasboardAnalytics[data]}
+                  data={dashboardAnalytics[data]}
                 />
               </Col>
             </Row>
           ))
-        }
+        } */}
 
         
 

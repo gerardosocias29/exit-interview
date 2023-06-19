@@ -171,14 +171,12 @@ export const Download = () => {
             {
               Object.keys(instructorsData).map((instructor, index) => {
                 return(
-                  <>
-                    <tr key={index}>
-                      <td>{instructor.toString()}</td>
-                      <td>{instructorsData[instructor].learnMostCount}</td>
-                      <td>{instructorsData[instructor].learnLeastCount}</td>
-                      <td>{instructorsData[instructor].topRecommendation}</td>
-                    </tr>
-                  </>
+                  <tr key={index}>
+                    <td>{instructor.toString()}</td>
+                    <td>{instructorsData[instructor].learnMostCount}</td>
+                    <td>{instructorsData[instructor].learnLeastCount}</td>
+                    <td>{instructorsData[instructor].topRecommendation}</td>
+                  </tr>
                 );
               })
             }
