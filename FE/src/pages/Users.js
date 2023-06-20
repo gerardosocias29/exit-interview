@@ -57,10 +57,6 @@ export const Users = () => {
             <th>Course</th>
             <th>Address</th>
             <th>Contact</th>
-            <th>Mother's Name</th>
-            <th>Father's Name</th>
-            <th>Spouse's Name</th>
-            <th># of Children</th>
             <th>Messenger</th>
           </tr>
         </thead>
@@ -75,10 +71,6 @@ export const Users = () => {
               <td>{item.course}</td>
               <td>{item.address}</td>
               <td>{item.contact}</td>
-              <td>{item.mother}</td>
-              <td>{item.father}</td>
-              <td>{item.spouse}</td>
-              <td>{item.children}</td>
               <td>{item.messenger}</td>
             </tr>
           ))}

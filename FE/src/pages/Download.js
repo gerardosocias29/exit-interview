@@ -60,7 +60,7 @@ export const Download = () => {
       .get(`/stats`)
       .then((res) => {
         setDashboard(res.data || []);
-        setInstructorsData(res.data.faculty_and_instructions_all);
+        setInstructorsData(res.data.faculty_and_instructors);
 
         setInstructorLearnTheMost(searchQuestions(res.data, ['instructor', 'learn', 'the', 'most'])[0] || {});
         setInstructorLearnTheLeast(searchQuestions(res.data, ['instructor', 'learn', 'the', 'least'])[0] || {});
@@ -154,7 +154,7 @@ export const Download = () => {
         <h5>BUENAVISTA COMMUNITY COLLEGE</h5>
         <h5>Cangawa, Buenavista, Bohol</h5>
         <br />
-        <h5 className='text-start'>FACULTY AND INSTRUCTIONS</h5>
+        <h5 className='text-start'>FACULTY AND INSTRUCTORS</h5>
         <Table bordered>
           <thead>
             <tr className='border border-dark'>

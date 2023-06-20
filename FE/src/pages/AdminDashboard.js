@@ -101,7 +101,7 @@ export const AdminDashboard = () => {
     await apiRequest
     .get(`/stats`)
     .then((res) => {
-      setStatistics(res.data.faculty_and_instructions_all);
+      setStatistics(res.data.faculty_and_instructors);
       setDashboardAnalytics(res.data.stats);
     })
     .catch((error) => {
@@ -294,7 +294,7 @@ export const AdminDashboard = () => {
       ],
       chart: {
         type: 'bar',
-        height: 350,
+        height: 500,
         stacked: true
       },
       plotOptions: {
@@ -352,10 +352,10 @@ export const AdminDashboard = () => {
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
-      return formattedName;
+      return item[key].form_course + '-' + formattedName;
     });
 
-    console.log(noOfRespondents);
+    console.log(dashboardAnalytics);
     const options = {
       series: [
         {
@@ -365,7 +365,7 @@ export const AdminDashboard = () => {
       ],
       chart: {
         type: 'bar',
-        height: 350
+        height: 500
       },
       plotOptions: {
         bar: {
@@ -565,7 +565,7 @@ export const AdminDashboard = () => {
             <Row className='mb-3 py-2 border-bottom'>
               <Col>
                 <Bar
-                  options={getOptions('FACULTY AND INSTRUCTIONS')}
+                  options={getOptions('FACULTY AND INSTRUCTORS')}
                   data={faculty_and_instructions}
                 />
               </Col>
@@ -610,7 +610,7 @@ export const AdminDashboard = () => {
         <div className="col-12">
           <div className="card">
             <div className="card-body">
-              <h5 className="card-title">Faculty And Instructions</h5>
+              <h5 className="card-title">Faculty And Instructors</h5>
               {FacultyAndInstructions()}
             </div>
           </div>

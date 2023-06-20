@@ -11,13 +11,14 @@ class DashboardController extends Controller
 {
 
     public function stats(Request $request) {
-        $forms = Forms::with('responses')->with(['questions.answers.options'])->orWhere('form_course', 'like', '%ALL%')->get();
+        $forms = Forms::with('responses')->with(['questions.answers.options'])->get();
 
         $stats = array();
         foreach($forms as $key => $form){
             $key_name = str_replace(' ', '_', $form->name);
             $questions = [
                 "questions" => [],
+                "form_course" => $form->form_course,
                 "no_of_respondents" => count($form->responses)
             ];
             foreach($form->questions as $ke => $q){
@@ -60,7 +61,7 @@ class DashboardController extends Controller
         $new_stats = [];
 
         foreach ($forms2 as $form) {
-            $formName = str_replace(' ', '_', $form->name) . '_' . strtolower($form->form_course);
+            $formName = str_replace(' ', '_', $form->name);
             $questions = $form->questions;
 
             $questionsData = [
@@ -84,20 +85,18 @@ class DashboardController extends Controller
                                 'recommendations' => []
                             ];
                         }
-                        if($question->type == "radio"){
-                            foreach($answer->options as $option){
-                                if($option->type == "options"){
+                        if ($question->type == "radio") {
+                            foreach ($answer->options as $option) {
+                                if ($option->type == "options") {
                                     array_push($answersData[$userID]['answer'], $option->name);
-                                }
-                                else if($option->type == "recommendations") {
+                                } else if ($option->type == "recommendations") {
                                     array_push($answersData[$userID]['recommendations'], $option->name);
                                 }
                             }
-                        }
-                        else if($question->type == "text" || $question->type == "textarea"){
+                        } else if ($question->type == "text" || $question->type == "textarea") {
                             array_push($answersData[$userID]['answer'], $answer->description);
                         }
-                        if($answer->remarks != null){
+                        if ($answer->remarks != null) {
                             array_push($answersData[$userID]['recommendations'], $answer->remarks);
                         }
                     }
@@ -108,10 +107,26 @@ class DashboardController extends Controller
                     'answers' => $answersData
                 ];
             }
-            
-            $new_stats[$formName] = $questionsData;
+
+            if (isset($new_stats[$formName]) && !empty($new_stats[$formName])) {
+                $existingData = $new_stats[$formName];
+                $existingQuestions = $existingData['questions'];
+
+                foreach ($existingQuestions as &$existingQuestion) {
+                    foreach ($questionsData['questions'] as $newQuestion) {
+                        if ($existingQuestion['question'] === $newQuestion['question']) {
+                            $existingQuestion['answers'] = array_merge_recursive($existingQuestion['answers'], $newQuestion['answers']);
+                        }
+                    }
+                }
+
+                $new_stats[$formName]['questions'] = $existingQuestions;
+            } else {
+                $new_stats[$formName] = $questionsData;
+            }
         }
-        $filteredStats = $new_stats['faculty_and_instructions_all']; // Assuming the form name is 'faculty and instructions'
+
+        $filteredStats = $new_stats['faculty_and_instructors']; // Assuming the form name is 'faculty and instructions'
         $instructors = [];
         foreach ($filteredStats['questions'] as $question) {
             $questionText = strtolower($question['question']);
@@ -172,7 +187,7 @@ class DashboardController extends Controller
                 }
             }
         }
-        return response()->json(['stats' => $stats, "faculty_and_instructions_all" => $instructors]);
+        return response()->json(['stats' => $stats, "faculty_and_instructors" => $instructors]);
     }
 
     public function index(Request $request){

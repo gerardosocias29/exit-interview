@@ -21,7 +21,7 @@ export const form = ({ questions, handleOnChange, getValue }) => {
           />
         </div>
       );
-    } else if (category === 'faculty and instructions') {
+    } else if (category === 'faculty and instructors') {
       return (
         <div className='mb-4'>
           <label>

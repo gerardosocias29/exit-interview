@@ -230,7 +230,7 @@ export const AdminDashboardBSHM = () => {
             <Pie data={pieData} options={optionsPie} width={'50%'} />
           </Col>
           <Col>
-            <Bar options={getOptions('FACULTY AND INSTRUCTIONS')} data={faculty_and_instructions} />
+            <Bar options={getOptions('FACULTY AND INSTRUCTORS')} data={faculty_and_instructions} />
           </Col>
         </Row>
 

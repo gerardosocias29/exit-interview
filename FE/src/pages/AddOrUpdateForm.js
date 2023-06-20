@@ -12,7 +12,7 @@ export const AddOrUpdateForm = () => {
     placeholder: '',
     isRequired: 0,
     isFilter: 0,
-    category: 'faculty and instructions',
+    category: 'faculty and instructors',
     options: [],
     existOptions: [],
     delOptions: [],
@@ -22,7 +22,7 @@ export const AddOrUpdateForm = () => {
     sub_title: '',
   };
 
-  const [form, setForm] = useState({ name: 'faculty and instructions' });
+  const [form, setForm] = useState({ name: 'faculty and instructors' });
   const [questions, setQuestions] = useState([question]);
   const { id } = useParams();
 
@@ -204,7 +204,7 @@ export const AddOrUpdateForm = () => {
               Please select category
             </option> */}
             {/* <option value='personal information'>PERSONAL INFORMATION</option> */}
-            <option value='faculty and instructions'>FACULTY AND INSTRUCTIONS</option>
+            <option value='faculty and instructors'>FACULTY AND INSTRUCTORS</option>
             <option value='subjects'>SUBJECTS</option>
             <option value='student services'>STUDENT SERVICES</option>
             <option value='school plant'>SCHOOL PLANT</option>

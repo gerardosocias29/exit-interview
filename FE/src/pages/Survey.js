@@ -15,7 +15,7 @@ export const Survey = () => {
   const [user, setUser] = useState({
     name: '',
     email: '',
-    course: '',
+    course: course.toUpperCase(),
     course_id: '',
     birthdate: '',
     contact: '',
@@ -38,6 +38,12 @@ export const Survey = () => {
       .then((res) => {
         if (res.data && res.data.length !== 0) {
           setCourses(res.data.map((item) => ({ value: item.id, label: item.name.toUpperCase() })));
+          const updateuser = {
+            ...user,
+            course: res.data.filter((item) => item.name == course.toUpperCase())[0].name || '',
+            course_id: res.data.filter((item) => item.name == course.toUpperCase())[0].id || '',
+          }
+          setUser(updateuser);
         }
       })
       .catch((error) => {
@@ -152,7 +158,7 @@ export const Survey = () => {
           />
         </div>
       );
-    } else if (category === 'faculty and instructions') {
+    } else if (category === 'faculty and instructors') {
       return (
         <div className='mb-4'>
           <label>
@@ -283,7 +289,7 @@ export const Survey = () => {
               <div className='mb-3'>
                 <h6>Course</h6>
                 <select
-                  
+                  disabled={course == "all" ? false : true}
                   className='form-control'
                   name='instructors'
                   onChange={(e) =>
