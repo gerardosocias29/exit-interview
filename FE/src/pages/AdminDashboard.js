@@ -99,7 +99,7 @@ export const AdminDashboard = () => {
       });
 
     await apiRequest
-    .get(`/stats`)
+    .get(`/stats/${course}`)
     .then((res) => {
       setStatistics(res.data.faculty_and_instructors);
       setDashboardAnalytics(res.data.stats);
@@ -553,7 +553,7 @@ export const AdminDashboard = () => {
             <h6>Gathered Data Information Exit Interview</h6>
           </div>
           <div className='d-flex justify-items-end ms-auto'>
-            <a href='/download' target='_blank'>
+            <a href={`/download/${course}`} target='_blank'>
               <button className='btn btn-success'>Generate Data Here</button>
             </a>
           </div>
@@ -562,7 +562,7 @@ export const AdminDashboard = () => {
       <div>
         {course !== 'all' ? (
           <>
-            <Row className='mb-3 py-2 border-bottom'>
+            {/* <Row className='mb-3 py-2 border-bottom'>
               <Col>
                 <Bar
                   options={getOptions('FACULTY AND INSTRUCTORS')}
@@ -587,7 +587,7 @@ export const AdminDashboard = () => {
                   data={recommendations.subject}
                 />
               </Col>
-            </Row>
+            </Row> */}
           </>
         ) : (
 
@@ -616,14 +616,16 @@ export const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="col-12">
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">Form Responses</h5>
-              {FormResponses()}
+        {course === "all" && (
+          <div className="col-12">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">Form Responses</h5>
+                {FormResponses()}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* {
           Object.keys(dashboardAnalytics).map((data, index) => (

@@ -10,8 +10,12 @@ use App\Models\UserForms;
 class DashboardController extends Controller
 {
 
-    public function stats(Request $request) {
-        $forms = Forms::with('responses')->with(['questions.answers.options'])->get();
+    public function stats(Request $request, $course = 'all') {
+        $forms = Forms::with('responses')->with(['questions.answers.options']);
+        if($course !== "all"){
+            $forms->where('form_course', 'like', $course)->orWhere('form_course', 'like', '%all%');
+        }
+        $forms = $forms->get();
 
         $stats = array();
         foreach($forms as $key => $form){
@@ -57,7 +61,13 @@ class DashboardController extends Controller
             array_push($stats, [$key_name => $questions]);
         }
 
-        $forms2 = Forms::with('questions.answers.option', 'responses', 'responses.users')->get();
+        $forms2 = Forms::with('questions.answers.option', 'responses', 'responses.users');
+        if($course !== "all"){
+            $forms2->where('form_course', 'like', $course);
+        }
+        $forms2 = $forms2->get();
+
+        
         $new_stats = [];
 
         foreach ($forms2 as $form) {
@@ -187,7 +197,7 @@ class DashboardController extends Controller
                 }
             }
         }
-        return response()->json(['stats' => $stats, "faculty_and_instructors" => $instructors]);
+        return response()->json(['stats' => $stats, "faculty_and_instructors" => $instructors, 'course' => $course]);
     }
 
     public function index(Request $request){

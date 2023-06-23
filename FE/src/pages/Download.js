@@ -4,8 +4,11 @@ import { apiRequest } from '../utils/apiRequest';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { recommendations } from '../utils/dummy';
+import { useParams } from 'react-router-dom';
 
 export const Download = () => {
+  const { course } = useParams();
+  
   const [dashboard, setDashboard] = useState([]);
   const exportRef = useRef();
 
@@ -57,7 +60,7 @@ export const Download = () => {
 
   const fetchData = async () => {
     await apiRequest
-      .get(`/stats`)
+      .get(`/stats/${course}`)
       .then((res) => {
         setDashboard(res.data || []);
         setInstructorsData(res.data.faculty_and_instructors);
@@ -252,218 +255,226 @@ export const Download = () => {
           </tbody>
         </Table> */}
         <br />
-        <h5 className='text-start'>SUBJECTS</h5>
-        <Table bordered>
-          <thead>
-            <tr className='border border-dark'>
-              <th className='col-lg-6'>Learn the Most</th>
-              <th className='col-lg-6'>Learn the Least</th>
-            </tr>
-          </thead>
-          <tbody>
-              <tr>
-                <td>
+
+        {
+          course == "all" && (
+            <>
+              <h5 className='text-start'>SUBJECTS</h5>
+              <Table bordered>
+                <thead>
+                  <tr className='border border-dark'>
+                    <th className='col-lg-6'>Learn the Most</th>
+                    <th className='col-lg-6'>Learn the Least</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                      <td>
+                        {
+                          subjectLearnTheMost &&
+                          subjectLearnTheMost.answers &&
+                          subjectLearnTheMost.answers.answer &&
+                          Object.keys(subjectLearnTheMost.answers.answer).reduce((maxKey, currentKey) => {
+                            if (subjectLearnTheMost.answers.answer[currentKey] > subjectLearnTheMost.answers.answer[maxKey]) {
+                              return currentKey;
+                            }
+                            return maxKey;
+                          }, Object.keys(subjectLearnTheMost.answers.answer)[0]).toUpperCase()
+                        }
+                      </td>
+                      <td>
+                        {
+                          subjectLearnTheLeast &&
+                          subjectLearnTheLeast.answers &&
+                          subjectLearnTheLeast.answers.answer &&
+                          Object.keys(subjectLearnTheLeast.answers.answer).reduce((maxKey, currentKey) => {
+                            if (subjectLearnTheLeast.answers.answer[currentKey] > subjectLearnTheLeast.answers.answer[maxKey]) {
+                              return currentKey;
+                            }
+                            return maxKey;
+                          }, Object.keys(subjectLearnTheLeast.answers.answer)[0]).toUpperCase()
+                        }
+                      </td>
+                    </tr>
+                </tbody>
+              </Table>
+              <h5 className='text-start'>STUDENT SERVICES</h5> {/* all students services should be ranking */}
+              <Table bordered>
+                <thead>
+                  <tr className='border border-dark'>
+                    <th className='align-middle col-xl-6' rowSpan="2">Office Name</th>
+                    <th colSpan="5">Ranking</th>
+                    <th className='align-middle' rowSpan={2}>Recommendation</th>
+                  </tr>
+                  <tr className='border border-dark'>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {studentServices &&
+                    Array.isArray(studentServices.questions) &&
+                    studentServices.questions.map((question, index) => {
+                      const officeName = officeNames && officeNames[index];
+                      const highestRecommendation = Object.entries(question.answers.recommendations)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([recommendation]) => recommendation)[0] || '';
+                      return (
+                        <tr key={index}>
+                          <td>{`${officeName} Office`.toUpperCase()} </td>
+                          {[1, 2, 3, 4, 5].map((ranking) => (
+                            <td key={ranking}>{question.answers.answer[ranking] || ''}</td>
+                          ))}
+                          <td>{highestRecommendation.toUpperCase()}</td>
+                        </tr>
+                      );
+                    }
+                  )}
+                </tbody>
+              </Table>
+
+              <h5 className='text-start'>SCHOOL PLANT</h5>
+              <Table bordered>
+                <thead>
+                  <tr className='border border-dark'>
+                    <th className='col-lg-6'></th>
+                    <th className='col-lg-6'>Recommendation</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {
-                    subjectLearnTheMost &&
-                    subjectLearnTheMost.answers &&
-                    subjectLearnTheMost.answers.answer &&
-                    Object.keys(subjectLearnTheMost.answers.answer).reduce((maxKey, currentKey) => {
-                      if (subjectLearnTheMost.answers.answer[currentKey] > subjectLearnTheMost.answers.answer[maxKey]) {
-                        return currentKey;
-                      }
-                      return maxKey;
-                    }, Object.keys(subjectLearnTheMost.answers.answer)[0]).toUpperCase()
+                    schoolPlant &&
+                    Array.isArray(schoolPlant.questions) &&
+                    schoolPlant.questions.map((question, index) => {
+                      const bldg = extractedSchoolPlant && extractedSchoolPlant[index];
+                      const highestRecommendation = Object.entries(question.answers.answer)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([answer]) => answer)[0] || '';
+                      return (
+                        <tr key={index}>
+                          <td>{`${bldg}`.toUpperCase()} </td>
+                          <td>{highestRecommendation}</td>
+                        </tr>
+                      );
+                    })
                   }
-                </td>
-                <td>
+                </tbody> 
+              </Table>
+
+              <h5 className='text-start'>FACILITIES AND EQUIPMENT</h5>
+              <Table bordered>
+                <thead>
+                  <tr className='border border-dark'>
+                    <th className='col-lg-6'>Facilities and Equipments</th>
+                    <th className='col-lg-6'>Recommendation</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {
-                    subjectLearnTheLeast &&
-                    subjectLearnTheLeast.answers &&
-                    subjectLearnTheLeast.answers.answer &&
-                    Object.keys(subjectLearnTheLeast.answers.answer).reduce((maxKey, currentKey) => {
-                      if (subjectLearnTheLeast.answers.answer[currentKey] > subjectLearnTheLeast.answers.answer[maxKey]) {
-                        return currentKey;
-                      }
-                      return maxKey;
-                    }, Object.keys(subjectLearnTheLeast.answers.answer)[0]).toUpperCase()
+                    facilitiesEquipment &&
+                    Array.isArray(facilitiesEquipment.questions) &&
+                    facilitiesEquipment.questions.map((question, index) => {
+                      const facility = facilities && facilities[index];
+                      const highestRecommendation = Object.entries(question.answers.answer)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([answer]) => answer)[0] || '';
+                      return (
+                        <tr key={index}>
+                          <td>{`${facility}`.toUpperCase()} </td>
+                          <td>{highestRecommendation}</td>
+                        </tr>
+                      );
+                    })
                   }
-                </td>
-              </tr>
-          </tbody>
-        </Table>
-        <h5 className='text-start'>STUDENT SERVICES</h5> {/* all students services should be ranking */}
-        <Table bordered>
-          <thead>
-            <tr className='border border-dark'>
-              <th className='align-middle col-xl-6' rowSpan="2">Office Name</th>
-              <th colSpan="5">Ranking</th>
-              <th className='align-middle' rowSpan={2}>Recommendation</th>
-            </tr>
-            <tr className='border border-dark'>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
-              <th>5</th>
-            </tr>
-          </thead>
-          <tbody>
-            {studentServices &&
-              Array.isArray(studentServices.questions) &&
-              studentServices.questions.map((question, index) => {
-                const officeName = officeNames && officeNames[index];
-                const highestRecommendation = Object.entries(question.answers.recommendations)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([recommendation]) => recommendation)[0] || '';
-                return (
-                  <tr key={index}>
-                    <td>{`${officeName} Office`.toUpperCase()} </td>
-                    {[1, 2, 3, 4, 5].map((ranking) => (
-                      <td key={ranking}>{question.answers.answer[ranking] || ''}</td>
-                    ))}
-                    <td>{highestRecommendation.toUpperCase()}</td>
-                  </tr>
-                );
-              }
-            )}
-          </tbody>
-        </Table>
+                </tbody> 
+              </Table>
 
-        <h5 className='text-start'>SCHOOL PLANT</h5>
-        <Table bordered>
-          <thead>
-            <tr className='border border-dark'>
-              <th className='col-lg-6'></th>
-              <th className='col-lg-6'>Recommendation</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              schoolPlant &&
-              Array.isArray(schoolPlant.questions) &&
-              schoolPlant.questions.map((question, index) => {
-                const bldg = extractedSchoolPlant && extractedSchoolPlant[index];
-                const highestRecommendation = Object.entries(question.answers.answer)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([answer]) => answer)[0] || '';
-                return (
-                  <tr key={index}>
-                    <td>{`${bldg}`.toUpperCase()} </td>
-                    <td>{highestRecommendation}</td>
+              <h5 className='text-start'>SCHOOL RULES AND POLICIES</h5>
+              <Table bordered>
+                <thead>
+                  <tr className='border border-dark'>
+                    <th className='align-middle col-xl-3' rowSpan="2">Rules and Policies</th>
+                    <th colSpan="10">Ranking</th>
+                    {/* <th className='align-middle' rowSpan={2}>Recommendation</th> */}
                   </tr>
-                );
-              })
-            }
-          </tbody> 
-        </Table>
+                  <tr className='border border-dark'>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                    <th>8</th>
+                    <th>9</th>
+                    <th>10</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {schoolRulesAndPolicies &&
+                    Array.isArray(schoolRulesAndPolicies.questions) &&
+                    schoolRulesAndPolicies.questions.map((question, index) => {
+                      const policy = rulesAndPolicies && rulesAndPolicies[index];
+                      const highestRecommendation = Object.entries(question.answers.recommendations)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([recommendation]) => recommendation)[0] || '';
+                      return (
+                        <tr key={index}>
+                          <td>{`${policy}`.toUpperCase()} </td>
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((ranking) => (
+                            <td key={ranking}>{question.answers.answer[ranking] || ''}</td>
+                          ))}
+                          {/* <td>{highestRecommendation.toUpperCase()}</td> */}
+                        </tr>
+                      );
+                    }
+                  )}
+                </tbody> 
+              </Table>
 
-        <h5 className='text-start'>FACILITIES AND EQUIPMENT</h5>
-        <Table bordered>
-          <thead>
-            <tr className='border border-dark'>
-              <th className='col-lg-6'>Facilities and Equipments</th>
-              <th className='col-lg-6'>Recommendation</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              facilitiesEquipment &&
-              Array.isArray(facilitiesEquipment.questions) &&
-              facilitiesEquipment.questions.map((question, index) => {
-                const facility = facilities && facilities[index];
-                const highestRecommendation = Object.entries(question.answers.answer)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([answer]) => answer)[0] || '';
-                return (
-                  <tr key={index}>
-                    <td>{`${facility}`.toUpperCase()} </td>
-                    <td>{highestRecommendation}</td>
+              <h5 className='text-start'>ADMINISTRATION</h5>
+              <Table bordered>
+                <thead>
+                  <tr className='border border-dark'>
+                    <th className='align-middle col-xl-3' rowSpan="2">Rules and Policies</th>
+                    <th colSpan="4">Ranking</th>
+                    <th className='align-middle' rowSpan={2}>Recommendation</th>
                   </tr>
-                );
-              })
-            }
-          </tbody> 
-        </Table>
-
-        <h5 className='text-start'>SCHOOL RULES AND POLICIES</h5>
-        <Table bordered>
-          <thead>
-            <tr className='border border-dark'>
-              <th className='align-middle col-xl-3' rowSpan="2">Rules and Policies</th>
-              <th colSpan="10">Ranking</th>
-              {/* <th className='align-middle' rowSpan={2}>Recommendation</th> */}
-            </tr>
-            <tr className='border border-dark'>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
-              <th>5</th>
-              <th>6</th>
-              <th>7</th>
-              <th>8</th>
-              <th>9</th>
-              <th>10</th>
-            </tr>
-          </thead>
-          <tbody>
-            {schoolRulesAndPolicies &&
-              Array.isArray(schoolRulesAndPolicies.questions) &&
-              schoolRulesAndPolicies.questions.map((question, index) => {
-                const policy = rulesAndPolicies && rulesAndPolicies[index];
-                const highestRecommendation = Object.entries(question.answers.recommendations)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([recommendation]) => recommendation)[0] || '';
-                return (
-                  <tr key={index}>
-                    <td>{`${policy}`.toUpperCase()} </td>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((ranking) => (
-                      <td key={ranking}>{question.answers.answer[ranking] || ''}</td>
-                    ))}
-                    {/* <td>{highestRecommendation.toUpperCase()}</td> */}
+                  <tr className='border border-dark'>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
                   </tr>
-                );
-              }
-            )}
-          </tbody> 
-        </Table>
-
-        <h5 className='text-start'>ADMINISTRATION</h5>
-        <Table bordered>
-          <thead>
-            <tr className='border border-dark'>
-              <th className='align-middle col-xl-3' rowSpan="2">Rules and Policies</th>
-              <th colSpan="4">Ranking</th>
-              <th className='align-middle' rowSpan={2}>Recommendation</th>
-            </tr>
-            <tr className='border border-dark'>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
-            </tr>
-          </thead>
-          <tbody>
-            {administrations &&
-              Array.isArray(administrations.questions) &&
-              administrations.questions.map((question, index) => {
-                const dept = departments && departments[index];
-                const highestRecommendation = Object.entries(question.answers.recommendations)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([recommendation]) => recommendation)[0] || '';
-                return (
-                  <tr key={index}>
-                    <td>{`${dept}`.toUpperCase()} </td>
-                    {[1, 2, 3, 4].map((ranking) => (
-                      <td key={ranking}>{question.answers.answer[ranking] || ''}</td>
-                    ))}
-                    <td>{highestRecommendation.toUpperCase()}</td>
-                  </tr>
-                );
-              }
-            )}
-          </tbody> 
-        </Table>
+                </thead>
+                <tbody>
+                  {administrations &&
+                    Array.isArray(administrations.questions) &&
+                    administrations.questions.map((question, index) => {
+                      const dept = departments && departments[index];
+                      const highestRecommendation = Object.entries(question.answers.recommendations)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([recommendation]) => recommendation)[0] || '';
+                      return (
+                        <tr key={index}>
+                          <td>{`${dept}`.toUpperCase()} </td>
+                          {[1, 2, 3, 4].map((ranking) => (
+                            <td key={ranking}>{question.answers.answer[ranking] || ''}</td>
+                          ))}
+                          <td>{highestRecommendation.toUpperCase()}</td>
+                        </tr>
+                      );
+                    }
+                  )}
+                </tbody> 
+              </Table>
+            </>
+          )
+        }
+        
         {/* <h5 className='text-start'>SUBJECTS</h5>
         <Table bordered>
           <tr className='border border-dark'>

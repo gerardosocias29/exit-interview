@@ -38,7 +38,7 @@ root.render(
         <Route path='/survey/:id/responses/:user_form_id' element={<SurveyResponseDetail />} />
         <Route path='/survey/:id/response' element={<SurveyResponseGroupDetail />} />
         <Route path='/register' element={<Register />} />
-        <Route path='/download' element={<Download />} />
+        <Route path='/download/:course' element={<Download />} />
         <Route path='/login' element={<Login />} />
         <Route path='/profile' element={<Profile />} />
         <Route path='/privacy-policy' element={<Privacy />} />
