@@ -45,6 +45,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
   Route::get('/recommendations', [AnswerController::class, 'recommendations']);
 
   Route::post('course/create', [CourseController::class, 'register']);
+  Route::post('course/update', [CourseController::class, 'update']);
+  Route::get('course_stats/{course}', [CourseController::class, 'course_stats']);
   // Route::get('course/', [CourseController::class, 'index']);
 
   Route::get('users/', [UserController::class, 'show']);

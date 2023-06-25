@@ -19,6 +19,7 @@ import { sortFormatData, chartFormatData } from '../utils/sorter';
 import { useParams } from 'react-router-dom';
 
 import ApexCharts from 'react-apexcharts';
+import Chart from "react-apexcharts";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ArcElement, Tooltip, Legend);
 
@@ -29,6 +30,7 @@ export const AdminDashboard = () => {
 
   const [dashboardAnalytics, setDashboardAnalytics] = useState([]);
   const [statistics, setStatistics] = useState([]);
+  const [perc, setPerc] = useState(0);
 
   const fetchData = async () => {
     await apiRequest
@@ -39,6 +41,16 @@ export const AdminDashboard = () => {
       .catch((error) => {
         console.log(error);
       });
+
+    await apiRequest
+    .get(`/course_stats/${course}`)
+    .then((res) => {
+      setPerc(res.data || []);
+      console.log("res.data:", res.data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 
     // await apiRequest
     //   .get(`/dashboard_details`)
@@ -531,6 +543,78 @@ export const AdminDashboard = () => {
     }
   };
 
+  const optionsRadial = {
+    plotOptions: {
+      radialBar: {
+        startAngle: 0,
+        endAngle: 360,
+        hollow: {
+          margin: 0,
+          size: "70%",
+          background: "#fff",
+          image: undefined,
+          imageOffsetX: 0,
+          imageOffsetY: 0,
+          position: "front",
+          dropShadow: {
+            enabled: true,
+            top: 3,
+            left: 0,
+            blur: 4,
+            opacity: 0.24
+          }
+        },
+        track: {
+          background: "#fff",
+          strokeWidth: "67%",
+          margin: 0, // margin is in pixels
+          dropShadow: {
+            enabled: true,
+            top: -3,
+            left: 0,
+            blur: 4,
+            opacity: 0.35
+          }
+        },
+
+        dataLabels: {
+          showOn: "always",
+          name: {
+            offsetY: -20,
+            show: true,
+            color: "#888",
+            fontSize: "13px"
+          },
+          value: {
+            formatter: function (val) {
+              return val;
+            },
+            color: "#111",
+            fontSize: "30px",
+            show: true
+          }
+        }
+      }
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shade: "dark",
+        type: "horizontal",
+        shadeIntensity: 0.5,
+        gradientToColors: ["#ABE5A1"],
+        inverseColors: true,
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [0, 100]
+      }
+    },
+    stroke: {
+      lineCap: "round"
+    },
+    labels: ["Percent"]
+  }
+
   return (
     <Page>
       <div className='mb-3'>
@@ -562,6 +646,19 @@ export const AdminDashboard = () => {
       <div>
         {course !== 'all' ? (
           <>
+            <div className="col-12">
+              <div className="card">
+                <div className="card-body">
+                  <h5 className="card-title">{course.toUpperCase()} Response</h5>
+                  <Chart
+                    options={optionsRadial}
+                    series={[perc.percentage]}
+                    type="radialBar"
+                    width="280"
+                  />
+                </div>
+              </div>
+            </div>
             {/* <Row className='mb-3 py-2 border-bottom'>
               <Col>
                 <Bar
